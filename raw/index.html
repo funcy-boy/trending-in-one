@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabs with Multiple Data Sources</title>
+    <style>
+        /* 基本样式 */
+        .tabs {
+            display: flex;
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background-color: #f1f1f1;
+            border: 1px solid #ccc;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background-color: #007bff;
+            color: #fff;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        /* 日期选择器和表格样式 */
+        .date-picker {
+            margin-bottom: 15px;
+        }
+        .table-container {
+            max-height: 600px; /* 设置最大高度，表格滚动 */
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            position: relative;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            position: sticky;
+            top: 0; /* 固定表头 */
+            z-index: 1;
+        }
+
+        /* Loading动画 */
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 24px;
+            color: #007bff;
+            display: none; /* 默认隐藏 */
+        }
+        .loading.active {
+            display: block; /* 显示loading动画 */
+        }
+    </style>
+</head>
+<body>
+
+<div class="tabs">
+    <div class="tab active" onclick="openTab(event, 'tab1')">toutiao-search</div>
+    <div class="tab" onclick="openTab(event, 'tab2')">weibo-search</div>
+    <div class="tab" onclick="openTab(event, 'tab3')">zhihu-questions</div>
+    <div class="tab" onclick="openTab(event, 'tab4')">zhihu-search</div>
+    <div class="tab" onclick="openTab(event, 'tab5')">zhihu-video</div>
+</div>
+
+<!-- Tab 内容区域 -->
+<div id="tab1" class="tab-content active">
+    <div class="date-picker">
+        <label for="date1">Select Date: </label>
+        <input type="date" id="date1" name="date1">
+        <button onclick="confirmDate('date1', 'table1', 'toutiao-search')">Confirm</button>
+    </div>
+    <div class="table-container">
+        <div class="loading" id="loading1">Loading...</div>
+        <table id="table1">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Source</th>
+                    <th>Date</th>
+                    <th>Link</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="tab2" class="tab-content">
+    <div class="date-picker">
+        <label for="date2">Select Date: </label>
+        <input type="date" id="date2" name="date2">
+        <button onclick="confirmDate('date2', 'table2', 'weibo-search')">Confirm</button>
+    </div>
+    <div class="table-container">
+        <div class="loading" id="loading2">Loading...</div>
+        <table id="table2">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Source</th>
+                    <th>Date</th>
+                    <th>Link</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="tab3" class="tab-content">
+    <div class="date-picker">
+        <label for="date3">Select Date: </label>
+        <input type="date" id="date3" name="date3">
+        <button onclick="confirmDate('date3', 'table3', 'zhihu-questions')">Confirm</button>
+    </div>
+    <div class="table-container">
+        <div class="loading" id="loading3">Loading...</div>
+        <table id="table3">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Source</th>
+                    <th>Date</th>
+                    <th>Link</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="tab4" class="tab-content">
+    <div class="date-picker">
+        <label for="date4">Select Date: </label>
+        <input type="date" id="date4" name="date4">
+        <button onclick="confirmDate('date4', 'table4', 'zhihu-search')">Confirm</button>
+    </div>
+    <div class="table-container">
+        <div class="loading" id="loading4">Loading...</div>
+        <table id="table4">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Source</th>
+                    <th>Date</th>
+                    <th>Link</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="tab5" class="tab-content">
+    <div class="date-picker">
+        <label for="date5">Select Date: </label>
+        <input type="date" id="date5" name="date5">
+        <button onclick="confirmDate('date5', 'table5', 'zhihu-video')">Confirm</button>
+    </div>
+    <div class="table-container">
+        <div class="loading" id="loading5">Loading...</div>
+        <table id="table5">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Source</th>
+                    <th>Date</th>
+                    <th>Link</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // 设置日期选择器默认值为当前日期
+    document.addEventListener("DOMContentLoaded", function() {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById("date1").value = today;
+        document.getElementById("date2").value = today;
+        document.getElementById("date3").value = today;
+        document.getElementById("date4").value = today;
+        document.getElementById("date5").value = today;
+
+        loadTableData(today, 'table1', 'toutiao-search');  // 默认加载 Tab 1 的数据
+    });
+
+    function openTab(event, tabId) {
+        var tabs = document.getElementsByClassName('tab');
+        var contents = document.getElementsByClassName('tab-content');
+        
+        for (var i = 0; i < tabs.length; i++) {
+            tabs[i].classList.remove('active');
+        }
+        for (var i = 0; i < contents.length; i++) {
+            contents[i].classList.remove('active');
+        }
+        
+        event.currentTarget.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+    }
+
+    // 确认按钮的处理函数
+    function confirmDate(dateId, tableId, source) {
+        const selectedDate = document.getElementById(dateId).value;
+        loadTableData(selectedDate, tableId, source);
+    }
+
+    // 加载表格数据
+    function loadTableData(date, tableId, source) {
+    const url = `/${source}/${date}.json`;
+
+    // 显示 loading 动画
+    document.getElementById(`loading${tableId.charAt(tableId.length - 1)}`).classList.add('active');
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById(tableId).getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = ''; // 清空表格内容
+            
+            // 格式转换和去重
+            const standardizedData = new Map();
+
+            data.forEach(item => {
+                let title, itemUrl;
+
+                // 根据不同的数据源字段来取值
+                switch (source) {
+                    case 'toutiao-search':
+                        title = item.word;
+                        itemUrl = item.url;
+                        break;
+                    case 'weibo-search':
+                        title= item.title;
+                        itemUrl= item.realurl;
+                        break;
+                    case 'zhihu-questions':
+                    case 'zhihu-video':
+                        title = item.title;
+                        itemUrl = item.url;
+                        break;
+                    case 'zhihu-search':
+                        title = item.display_query;
+                        itemUrl = item.url;
+                        break;
+                    default:
+                        title = '';
+                        itemUrl = '';
+                }
+
+                // 去重：仅当 title 不存在时才添加
+                if (title && !standardizedData.has(title)) {
+                    standardizedData.set(title, { title, url: itemUrl });
+                }
+            });
+
+            // 将去重的数据渲染到表格中
+            standardizedData.forEach(({ title, url }) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${title}</td>
+                    <td>${source}</td>
+                    <td>${date}</td>
+                    <td><a href="${url}" target="_blank">Link</a></td>
+                `;
+                tableBody.appendChild(row);
+            });
+
+            // 隐藏 loading 动画
+            document.getElementById(`loading${tableId.charAt(tableId.length - 1)}`).classList.remove('active');
+        })
+        .catch(error => {
+            alert("Error loading data:", error)
+            console.error("Error loading data:", error);
+            // 请求失败时隐藏 loading 动画
+            document.getElementById(`loading${tableId.charAt(tableId.length - 1)}`).classList.remove('active');
+        });
+}
+</script>
+
+</body>
+</html>
