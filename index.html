@@ -227,7 +227,7 @@
 
     // 加载表格数据
     function loadTableData(date, tableId, source) {
-    const url = `/archives/${source}/${date}.json`;
+    const url = `/raw/${source}/${date}.json`;
 
     // 显示 loading 动画
     document.getElementById(`loading${tableId.charAt(tableId.length - 1)}`).classList.add('active');
